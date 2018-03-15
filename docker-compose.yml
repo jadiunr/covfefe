@@ -6,6 +6,7 @@ services:
     build: .
     volumes:
       - .:/covfefe
+    command: ruby covfefe.rb
     depends_on:
       - redis
     stdin_open: true
