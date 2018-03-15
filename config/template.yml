@@ -1,0 +1,15 @@
+twitter_auth:
+  consumer_key:        ""
+  consumer_secret:     ""
+  access_token:        ""
+  access_token_secret: ""
+
+target_id: ""
+
+redis:
+  host: "redis"
+  port: 6379
+
+slack:
+  token: ""
+  channel: "" 
