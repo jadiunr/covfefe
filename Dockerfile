@@ -7,6 +7,7 @@ RUN apk update && \
       libxml2-dev \
       libxslt-dev \
       linux-headers \
+      openssl \
       ruby-dev \
       tzdata \
       yaml \
