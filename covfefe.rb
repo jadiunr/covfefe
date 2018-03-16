@@ -24,9 +24,12 @@ client.filter(follow: yaml["target_id"]) do |tweet|
                           date: tweet.created_at,
                           imgs_uri: imgs_uri || nil }.to_json
   when Twitter::Streaming::DeletedTweet then
-    deleted_tweet = JSON.parse(redis.get(tweet.id))
-    slack.post "#{deleted_tweet["name"]}\n#{deleted_tweet["text"]}\n#{deleted_tweet["date"]}"
-    slack.upload deleted_tweet["imgs_uri"] unless deleted_tweet["imgs_uri"].nil?
+    t = redis.get(tweet.id)
+    unless t.nil?
+      deleted_tweet = JSON.parse(t)
+      slack.post "#{deleted_tweet["name"]}\n#{deleted_tweet["text"]}\n#{deleted_tweet["date"]}"
+      slack.upload deleted_tweet["imgs_uri"] unless deleted_tweet["imgs_uri"].nil?
+    end
   else
     # no-op
   end
