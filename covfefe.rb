@@ -15,22 +15,28 @@ client = Twitter::Streaming::Client.new do |config|
   config.access_token_secret = yaml["twitter_auth"]["access_token_secret"]
 end
 
-client.filter(follow: yaml["target_id"]) do |tweet|
-  case tweet
-  when Twitter::Tweet then
-    imgs_uri = tweet.media.map { |m| m.media_uri } unless tweet.media.empty?
-    redis.set tweet.id, { name: tweet.user.name,
-                          text: tweet.full_text,
-                          date: tweet.created_at,
-                          imgs_uri: imgs_uri || nil }.to_json
-  when Twitter::Streaming::DeletedTweet then
-    t = redis.get(tweet.id)
-    unless t.nil?
-      deleted_tweet = JSON.parse(t)
-      slack.post "#{deleted_tweet["name"]}\n#{deleted_tweet["text"]}\n#{deleted_tweet["date"]}"
-      slack.upload deleted_tweet["imgs_uri"] unless deleted_tweet["imgs_uri"].nil?
+begin
+  client.filter(follow: yaml["target_id"]) do |tweet|
+    case tweet
+    when Twitter::Tweet then
+      imgs_uri = tweet.media.map { |m| m.media_uri } unless tweet.media.empty?
+      redis.set tweet.id, { name: tweet.user.name,
+                            text: tweet.full_text,
+                            date: tweet.created_at,
+                            imgs_uri: imgs_uri || nil }.to_json
+    when Twitter::Streaming::DeletedTweet then
+      t = redis.get(tweet.id)
+      unless t.nil?
+        deleted_tweet = JSON.parse(t)
+        slack.post "#{deleted_tweet["name"]}\n#{deleted_tweet["text"]}\n#{deleted_tweet["date"]}"
+        slack.upload deleted_tweet["imgs_uri"] unless deleted_tweet["imgs_uri"].nil?
+      end
+    else
+      # no-op
     end
-  else
-    # no-op
   end
+rescue EOFError => e
+  puts "は？"
+  puts "#{e.class} #{e.message}"
+  retry
 end
