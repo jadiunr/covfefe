@@ -4,7 +4,7 @@ require_relative "lib/slack_api"
 require "yaml"
 require "json"
 
-yaml = YAML.load_file("config/setting.yml") || YAML.load_file("/run/secrets/covfefe-setting.yml")
+yaml = YAML.load_file("config/setting.yml")
 redis = Redis.new(yaml["redis"])
 slack = SlackAPI.new(token: yaml["slack"]["token"],
                      channel: yaml["slack"]["channel"])
