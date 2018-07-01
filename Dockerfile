@@ -1,25 +1,10 @@
-FROM ruby:2.4.3-alpine
+FROM ruby:2.5.1-alpine
 ENV LANG C.UTF-8
-
-RUN apk update && \
-    apk add \
-      build-base \
-      libxml2-dev \
-      libxslt-dev \
-      linux-headers \
-      openssl \
-      ruby-dev \
-      tzdata \
-      yaml \
-      yaml-dev && \
-    gem install bundler
-
-WORKDIR /tmp
-ADD Gemfile Gemfile
-ADD Gemfile.lock Gemfile.lock
-RUN bundle install
-
-ENV APP_HOME /covfefe
-RUN mkdir -p $APP_HOME
+ENV APP_HOME /app
 WORKDIR $APP_HOME
-ADD . $APP_HOME
+COPY . $APP_HOME
+RUN apk add --update \
+      build-base \
+      openssl && \
+    gem install bundler && \
+    bundle install
